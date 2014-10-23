@@ -41,6 +41,12 @@ class EMongoDataProvider extends CActiveDataProvider
 	private $_cursor;
 	
 	/**
+	 * Sets a client-side timeout in milliseconds for the MongoCursor instance
+	 * @var integer
+	 */
+	private $_timeout = 300000; //Default 30 seconds
+	
+	/**
 	 * @var EMongoSort
 	 */
 	private $_sort;
@@ -89,6 +95,15 @@ class EMongoDataProvider extends CActiveDataProvider
 	}
 
 	/**
+	 * Set timeout value in miliseconds
+	 * @param integer $ms
+	 */
+	public function setTimeout($ms)
+	{
+		$this->_timeout = $ms;
+	}
+
+	/**
 	 * @see CActiveDataProvider::fetchData()
 	 * @return array
 	 */
@@ -101,6 +116,9 @@ class EMongoDataProvider extends CActiveDataProvider
 			isset($criteria['condition']) && is_array($criteria['condition']) ? $criteria['condition'] : array(),
 			isset($criteria['project']) && !empty($criteria['project']) ? $criteria['project'] : array() 
 		);
+
+		//Set timeout
+		$this->_cursor->timeout($this->_timeout);
 
 		// If we have sort and limit and skip setup within the incoming criteria let's set it
 		if(isset($criteria['sort']) && is_array($criteria['sort'])){
